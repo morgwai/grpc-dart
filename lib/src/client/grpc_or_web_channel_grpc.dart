@@ -18,20 +18,28 @@ import 'options.dart';
 import 'transport/http2_credentials.dart';
 
 class GrpcOrWebClientChannel extends ClientChannel {
-  GrpcOrWebClientChannel.grpc(
-    Object host, {
-    int port = 443,
-    ChannelOptions options = const ChannelOptions(),
-  }) : super(host, port: port, options: options);
-
-  GrpcOrWebClientChannel(String host, int port, bool secure)
-      : this.grpc(
+  GrpcOrWebClientChannel({
+    required String host,
+    required int grpcPort,
+    required int grpcWebPort,
+    required bool secure,
+  }) : super(
           host,
-          port: port,
+          port: grpcPort,
           options: ChannelOptions(
             credentials: secure
                 ? ChannelCredentials.secure()
                 : ChannelCredentials.insecure(),
           ),
-        );
+        ) {
+    if (grpcWebPort == grpcPort) {
+      throw ArgumentError('grpcPort and grpcWebPort cannot be the same');
+    }
+  }
+
+  GrpcOrWebClientChannel.grpc(
+    Object host, {
+    int port = 443,
+    ChannelOptions options = const ChannelOptions(),
+  }) : super(host, port: port, options: options);
 }

@@ -17,9 +17,17 @@ import 'options.dart';
 import 'web_channel.dart';
 
 class GrpcOrWebClientChannel extends GrpcWebClientChannel {
-  GrpcOrWebClientChannel(String host, int port, bool secure)
-      : super.xhr(
-            Uri(host: host, port: port, scheme: secure ? 'https' : 'http'));
+  GrpcOrWebClientChannel({
+    required String host,
+    required int grpcPort,
+    required int grpcWebPort,
+    required bool secure,
+  }) : super.xhr(Uri(
+            host: host, port: grpcWebPort, scheme: secure ? 'https' : 'http')) {
+    if (grpcWebPort == grpcPort) {
+      throw ArgumentError('grpcPort and grpcWebPort cannot be the same');
+    }
+  }
 
   GrpcOrWebClientChannel.grpc(
     Object host, {
@@ -31,7 +39,7 @@ class GrpcOrWebClientChannel extends GrpcWebClientChannel {
               port: port,
               scheme: options.credentials.isSecure ? 'https' : 'http'),
         ) {
-    // Do not silently ignore options as caller may expect them to have effect.
+    // Do not silently ignore options as caller may expect them to have effects.
     throw UnsupportedError('not supported by gRPC-web');
   }
 }
